@@ -1,0 +1,64 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOLD Dual Chart v1.50 DEMO</title><style>
+*{box-sizing:border-box}body{margin:0;background:#0b1521;color:#e6eff9;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px}header{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 12px;background:#192a3c}strong{font-size:16px}.warn{color:#ffca77}button,input{background:#233a50;color:#fff;border:1px solid #4b6074;border-radius:5px;padding:7px}button{cursor:pointer}input{width:52px}.charts{padding:5px 8px;display:grid;gap:5px}.panel{background:#111f2e;border:1px solid #2a4054;border-radius:8px;padding:5px}.title{display:flex;justify-content:space-between;margin:2px 5px 6px;font-weight:700}.title small{font-weight:400;color:#a7c0d4}.plot{width:100%;height:23vh;min-height:125px;display:block}.cci{width:100%;height:7vh;min-height:44px;display:block;margin-top:5px}.foot{display:flex;flex-wrap:wrap;gap:12px;margin:6px 5px 0;color:#b7c6d7}.signal{margin:6px 5px 2px;padding:7px 10px;background:#213349;border-radius:5px;font-weight:700}.signal.buy{color:#4ee0ac}.signal.sell{color:#ff8c86}.signal.wait{color:#f0ca7b}.meter{margin:5px 8px;padding:7px;border:1px solid #476078;border-radius:8px;background:#192b3e}.meterhead{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:14px}.bar{height:9px;border-radius:10px;background:#31465b;overflow:hidden;margin:3px 0 5px}.fill{height:100%;background:linear-gradient(90deg,#269b87,#64ddac);width:0;transition:width .2s}.fill.sell{background:linear-gradient(90deg,#d88d5b,#ed666a)}.reasons{font-size:11px;color:#c4d3e1;line-height:1.35}.twobars{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:5px 0}.barlabel{display:flex;justify-content:space-between;font-size:12px}.buytext{color:#4ee0ac}.selltext{color:#ff8c86}.fill.buy{background:#24b78d}.fill.sell{background:#e16d70}.hi{color:#ff747c}.lo{color:#65b4ff}.notice{color:#a9b9c8;font-size:11px;padding:0 12px 12px;line-height:1.5}@media(max-height:680px){.plot{height:21vh;min-height:100px}.cci{height:6vh;min-height:38px}}
+
+html,body{height:100%;height:100dvh;overflow:hidden}
+body{display:flex;flex-direction:column;min-height:0}
+header{flex:0 0 auto;padding:5px 9px;gap:6px}header strong{font-size:14px}header button,header input{padding:4px 7px}
+.meter{flex:0 0 auto;margin:4px 7px;padding:3px 7px}
+.meter summary{cursor:pointer;list-style:none;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;min-height:25px}
+.meter summary::-webkit-details-marker{display:none}.meter summary:before{content:'▾';margin-right:6px;color:#a9c6dc}.meter:not([open]) summary:before{content:'▸'}
+.meterbody{padding:3px 0}.meterhead{font-size:12px}.twobars{margin:3px 0;gap:6px}.bar{height:7px;margin:2px 0}.reasons{font-size:10px;line-height:1.2}
+.charts{flex:1 1 auto;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:5px;padding:3px 7px 5px}
+.panel{min-height:0;display:flex;flex-direction:column;padding:4px 6px;overflow:hidden}
+.title{flex:0 0 auto;margin:0 3px 3px;font-size:12px;gap:5px}.title small{font-size:10px}
+.plot{flex:1 1 auto;min-height:0;height:0;width:100%}
+.cci{flex:0 0 clamp(34px,6dvh,58px);min-height:0;height:auto;margin-top:2px}
+.foot{flex:0 0 auto;gap:9px;margin:3px 4px 0;font-size:11px;line-height:1.2}
+.signal{flex:0 0 auto;margin:3px 3px 0;padding:4px 7px;font-size:11px;line-height:1.15}
+.notice{display:none}
+@media(max-height:600px){header{padding:3px 7px}.meter{margin:2px 6px}.title{font-size:11px}.cci{flex-basis:32px}.foot,.signal{font-size:10px}.signal{padding:2px 5px}}
+</style></head><body><header><strong>GOLD 2画面 v1.50</strong><span class="warn">DEMO・模擬データ／注文不可</span><label>高安期間 <input id="period" type="number" value="20" min="2" max="80"></label><button id="refresh">模擬データ更新</button></header>
+<details class="meter" id="meterbox" open><summary>総合メーター <span id="summaryscore">BUY 0 / SELL 0</span></summary><div class="meterbody"><div class="meterhead"><span id="overall">総合判定 WAIT</span><span id="score">BUY 0 / SELL 0</span></div><div class="twobars"><div><div class="barlabel buytext"><span>BUY</span><span id="buyvalue">0点</span></div><div class="bar"><div id="buyfill" class="fill buy"></div></div></div><div><div class="barlabel selltext"><span>SELL</span><span id="sellvalue">0点</span></div><div class="bar"><div id="sellfill" class="fill sell"></div></div></div></div><div class="reasons" id="reasons">読み込み中</div></div></details><div class="charts"><section class="panel"><div class="title"><span>上段｜XAUUSD 100 TICK（模擬）</span><small>BB 20,2 ／ CCI 20 ＋ RSI 14</small></div><canvas class="plot" id="top"></canvas><canvas class="cci" id="topcci"></canvas><div class="foot" id="topstats"></div><div class="signal" id="topsignal"></div></section>
+<section class="panel"><div class="title"><span>下段｜XAUUSD M1（模擬）</span><small>BB 20,2 ／ CCI 20 ＋ RSI 14</small></div><canvas class="plot" id="bottom"></canvas><canvas class="cci" id="bottomcci"></canvas><div class="foot" id="bottomstats"></div><div class="signal" id="bottomsignal"></div></section></div>
+<div class="notice">赤＝確定済み直近N本の最高値、青＝最安値。黄色＝BB、下段の緑線＝CCI、橙線＝RSI。CCIは−200〜＋200、RSIは0〜100を同じ領域へ別スケールで表示します。2画面のサンプル系列は別々に生成したもので、実際の市場・時間足間の整合性はありません。API未接続のためリアルタイム価格ではありません。方向一致は直近2本の傾きだけで判定します。総合スコアは5条件の簡易加点で、勝率や売買指示ではありません。</div>
+<script>
+let data={};let nonce=0;function rng(seed){return()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296}}
+function make(seed){let r=rng(seed),v=4046,a=[];for(let i=0;i<110;i++){let o=v;v+= (r()-.5)*.75;let h=Math.max(o,v)+r()*.3,l=Math.min(o,v)-r()*.3;a.push({o,h,l,c:v})}return a}
+function size(c){let rect=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=Math.round(rect.width*d);c.height=Math.round(rect.height*d);let ctx=c.getContext('2d');ctx.setTransform(d,0,0,d,0,0);return{ctx,w:rect.width,h:rect.height}}
+function drawPath(ctx,points,color,width=1,dash=[]){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([])}
+function cci(b,i){if(i<19)return null;let t=b.map(x=>(x.h+x.l+x.c)/3),m=0;for(let j=i-19;j<=i;j++)m+=t[j]/20;let md=0;for(let j=i-19;j<=i;j++)md+=Math.abs(t[j]-m)/20;return md?(t[i]-m)/(.015*md):0}
+function rsi(b,i){if(i<14)return null;let gain=0,loss=0;for(let j=i-13;j<=i;j++){let delta=b[j].c-b[j-1].c;if(delta>0)gain+=delta;else loss-=delta}if(loss===0)return gain===0?50:100;return 100-100/(1+gain/loss)}
+function render(key,canvasId,cciId,statsId){let b=data[key],{ctx:x,w,h}=size(document.getElementById(canvasId)),N=b.length,side=67,left=8,ww=w-side-left,ph=h-12;
+let lo=Math.min(...b.map(v=>v.l)),hi=Math.max(...b.map(v=>v.h)),pad=(hi-lo)*.12||.2;lo-=pad;hi+=pad;const X=i=>left+(i+.5)*ww/N,Y=v=>6+(hi-v)/(hi-lo)*(ph-6);
+x.font='11px sans-serif';for(let k=0;k<5;k++){let val=lo+(hi-lo)*k/4,y=Y(val);drawPath(x,[[left,y],[w-side,y]],'#2b4051');x.fillStyle='#a2b4c6';x.fillText(val.toFixed(2),w-side+5,y+4)}
+for(let i=19;i<N;i++){let mean=0;for(let j=i-19;j<=i;j++)mean+=b[j].c/20;let v=0;for(let j=i-19;j<=i;j++)v+=(b[j].c-mean)**2/20;let sd=Math.sqrt(v);b[i].bbHi=mean+2*sd;b[i].bbLo=mean-2*sd}
+for(let k of ['bbHi','bbLo'])drawPath(x,b.slice(19).map((v,j)=>[X(j+19),Y(v[k])]),'#e5c34c',1.2);
+b.forEach((v,i)=>{let xx=X(i),color=v.c>=v.o?'#24b994':'#e36c63';drawPath(x,[[xx,Y(v.h)],[xx,Y(v.l)]],color);x.fillStyle=color;x.fillRect(xx-Math.max(1,ww/N*.33),Math.min(Y(v.o),Y(v.c)),Math.max(2,ww/N*.66),Math.max(1,Math.abs(Y(v.o)-Y(v.c))))});
+let period=Math.min(80,Math.max(2,Number(document.getElementById('period').value)||20)),closed=b.slice(-period-1,-1),high=Math.max(...closed.map(v=>v.h)),low=Math.min(...closed.map(v=>v.l));
+for(let [v,color] of [[high,'#ff737d'],[low,'#61b1ff']]){let y=Y(v);drawPath(x,[[left,y],[w-side,y]],color,2);x.fillStyle=color;x.fillText(v.toFixed(2),left+6,Math.max(16,Math.min(h-8,y-6)))}
+let q=size(document.getElementById(cciId)),c=q.ctx,cy=q.h/2,scale=q.h*.38/200;
+for(let v of [-100,0,100])drawPath(c,[[left,cy-v*scale],[q.w-side,cy-v*scale]],'#385067',1,v?[3,3]:[]);
+let cPts=[],rPts=[];for(let i=19;i<N;i++){let cv=cci(b,i),rv=rsi(b,i);cPts.push([X(i),cy-Math.max(-200,Math.min(200,cv))*scale]);if(rv!==null)rPts.push([X(i),cy-(rv-50)*4*scale])}
+drawPath(c,cPts,'#63d3a0',1.7);drawPath(c,rPts,'#ffa64d',1.7);
+let cv=cci(b,N-1),rv=rsi(b,N-1),pcv=cci(b,N-2),prv=rsi(b,N-2);
+let state=cv>pcv&&rv>prv?'BUY方向一致':cv<pcv&&rv<prv?'SELL方向一致':'方向不一致 / WAIT';
+let signal=document.getElementById(key==='t'?'topsignal':'bottomsignal');signal.className='signal '+(state.startsWith('BUY')?'buy':state.startsWith('SELL')?'sell':'wait');signal.textContent=state+'（CCI・RSIの直近傾き）';
+document.getElementById(statsId).innerHTML='<span class="hi">高値 '+high.toFixed(2)+'</span><span class="lo">安値 '+low.toFixed(2)+'</span><span>終値 '+b.at(-1).c.toFixed(2)+'</span><span style="color:#63d3a0">CCI '+cv.toFixed(0)+'</span><span style="color:#ffa64d">RSI '+rv.toFixed(1)+'</span>';
+}
+function indicators(b){let n=b.length-1,c=cci(b,n),prev=cci(b,n-1),r=rsi(b,n),rp=rsi(b,n-1),p=20,old=b.slice(-p-1,-1),high=Math.max(...old.map(v=>v.h)),low=Math.min(...old.map(v=>v.l));let closes=b.map(v=>v.c);function sd(i){let a=closes.slice(i-19,i+1),m=a.reduce((x,y)=>x+y,0)/20;return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/20)}let expansion=sd(n)>sd(n-3)*1.08;let dir=c>prev&&r>rp?1:c<prev&&r<rp?-1:0;return{dir,c,r,high,low,price:b[n].c,expansion,range:Math.max(.01,high-low)}}
+function renderMeter(){let a=indicators(data.t),b=indicators(data.m),buy=0,sell=0,notes=[];
+function add(buyOK,sellOK,weight,label){if(buyOK)buy+=weight;if(sellOK)sell+=weight;notes.push(label+': '+(buyOK?'BUY':sellOK?'SELL':'中立'))}
+add(a.dir===1&&b.dir===1,a.dir===-1&&b.dir===-1,30,'T100・M1方向一致');
+add(a.c>0&&b.c>0,a.c<0&&b.c<0,20,'CCIゼロライン');
+add(a.r>=50&&b.r>=50,a.r<50&&b.r<50,20,'RSI 50基準');
+add(a.expansion&&b.expansion&&a.dir===1&&b.dir===1,a.expansion&&b.expansion&&a.dir===-1&&b.dir===-1,15,'BB幅拡大');
+let up=Math.min((a.high-a.price)/a.range,(b.high-b.price)/b.range),down=Math.min((a.price-a.low)/a.range,(b.price-b.low)/b.range);
+add(up>.18&&a.dir===1&&b.dir===1,down>.18&&a.dir===-1&&b.dir===-1,15,'高値・安値までの余地');
+let state=buy>=70&&buy>sell?'BUY候補':sell>=70&&sell>buy?'SELL候補':'WAIT';
+document.getElementById('overall').textContent='総合判定 '+state;document.getElementById('score').textContent='BUY '+buy+' / SELL '+sell;document.getElementById('summaryscore').textContent='BUY '+buy+' / SELL '+sell;
+document.getElementById('buyfill').style.width=buy+'%';document.getElementById('sellfill').style.width=sell+'%';document.getElementById('buyvalue').textContent=buy+'点';document.getElementById('sellvalue').textContent=sell+'点';
+document.getElementById('reasons').textContent=notes.join('　｜　')+'　※模擬データ／点数は勝率ではありません'}
+function renderAll(){if(!data.t)return;renderMeter();render('t','top','topcci','topstats');render('m','bottom','bottomcci','bottomstats')}
+function regenerate(){nonce++;data.t=make(109+nonce*13);data.m=make(992+nonce*17);renderAll()}
+document.getElementById('period').onchange=renderAll;document.getElementById('refresh').onclick=regenerate;window.addEventListener('resize',renderAll);document.getElementById('meterbox').addEventListener('toggle',()=>requestAnimationFrame(renderAll));if(window.ResizeObserver){new ResizeObserver(()=>requestAnimationFrame(renderAll)).observe(document.querySelector('.charts'))}regenerate();
+</script></body></html>
